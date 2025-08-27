@@ -1,24 +1,31 @@
+import { useEffect, useState } from 'react'
+
 export default function DataSources() {
-  const items = [
-    { name: 'Supabase (Postgres)', status: 'connected' },
-    { name: 'Local Files', status: 'connected' },
-    { name: 'Webhooks', status: 'not configured' },
-  ]
-  const badge = (s:string) => s==='connected' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-yellow-500/20 text-yellow-300'
+  const [sources, setSources] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/data-sources`)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch data sources')
+        return res.json()
+      })
+      .then(setSources)
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false))
+  }, [])
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Data Sources</h1>
-        <button className="btn-primary">Add Source</button>
-      </div>
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {items.map(x => (
-          <div key={x.name} className="card p-5">
-            <p className="font-medium">{x.name}</p>
-            <span className={`chip mt-2 ${badge(x.status)}`}>{x.status}</span>
-          </div>
+    <div>
+      <h1 className="text-xl font-semibold mb-4">Data Sources</h1>
+      {loading && <p>Loading...</p>}
+      {error && <p className="text-red-400">{error}</p>}
+      <ul className="space-y-2">
+        {sources.map(s => (
+          <li key={s.id} className="p-4 border rounded-lg">{s.name}</li>
         ))}
-      </div>
+      </ul>
     </div>
   )
 }

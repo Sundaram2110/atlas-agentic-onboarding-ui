@@ -1,33 +1,31 @@
-import Section from '@/components/ui/Section'
+import { useEffect, useState } from 'react'
 
 export default function Workflows() {
-  const items = [
-    { name: 'Founders Intake', steps: 6, updated: '2d ago' },
-    { name: 'KYC Verification', steps: 4, updated: '5d ago' },
-    { name: 'Product Demo Prep', steps: 5, updated: '1d ago' },
-  ]
+  const [workflows, setWorkflows] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/workflows`)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch workflows')
+        return res.json()
+      })
+      .then(setWorkflows)
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false))
+  }, [])
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Workflows</h1>
-        <button className="btn-primary">New Workflow</button>
-      </div>
-
-      <Section title="All Workflows">
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {items.map((wf) => (
-            <div key={wf.name} className="card p-5 space-y-2">
-              <p className="font-medium">{wf.name}</p>
-              <p className="text-sm text-slate-400">{wf.steps} steps • Updated {wf.updated}</p>
-              <div className="flex gap-2 pt-2">
-                <button className="btn-ghost">Edit</button>
-                <button className="btn-primary">Run</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Section>
+    <div>
+      <h1 className="text-xl font-semibold mb-4">Workflows</h1>
+      {loading && <p>Loading...</p>}
+      {error && <p className="text-red-400">{error}</p>}
+      <ul className="space-y-2">
+        {workflows.map(w => (
+          <li key={w.id} className="p-4 border rounded-lg">{w.name}</li>
+        ))}
+      </ul>
     </div>
   )
 }

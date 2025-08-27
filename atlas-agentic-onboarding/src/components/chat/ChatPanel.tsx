@@ -1,33 +1,58 @@
 import { useState } from 'react'
-import { Send } from 'lucide-react'
 
-interface Message { role: 'user' | 'assistant'; content: string }
 export default function ChatPanel() {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Hi! I\'m the Atlas Agent. Ask me to generate an onboarding flow.' }
-  ])
+  const [messages, setMessages] = useState<{ role: string; content: string }[]>([])
   const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const send = () => {
-    if (!input.trim()) return
-    setMessages(m => [...m, { role: 'user', content: input }, { role: 'assistant', content: 'This is a placeholder response. You\'ll wire me to LangGraph + Llama3 via your Node API.' }])
+  const sendMessage = async () => {
+    if (!input.trim() || loading) return
+
+    const newMessage = { role: 'user', content: input }
+    setMessages(prev => [...prev, newMessage])
     setInput('')
+    setLoading(true)
+    setError(null)
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/agent/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: input }),
+      })
+      if (!res.ok) throw new Error('Failed to get reply')
+      const data = await res.json()
+      setMessages(prev => [...prev, { role: 'assistant', content: data.response }])
+    } catch (e: any) {
+      setError(e.message || 'Unknown error')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="card p-4 flex flex-col h-[480px]">
-      <div className="flex-1 overflow-auto space-y-3 pr-1">
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto space-y-2 p-4">
         {messages.map((m, i) => (
-          <div key={i} className={`max-w-[75%] ${m.role==='user' ? 'ml-auto' : ''}`}>
-            <div className={`px-3 py-2 rounded-xl border ${m.role==='user' ? 'bg-white/10 border-white/10' : 'bg-atlas-accent/10 border-atlas-accent/30 text-atlas-accent'}`}>
-              <p className="text-sm">{m.content}</p>
-            </div>
+          <div key={i} className={m.role === 'user' ? 'text-right' : 'text-left'}>
+            <span className="inline-block px-3 py-2 rounded-lg bg-gray-200 dark:bg-gray-700">
+              {m.content}
+            </span>
           </div>
         ))}
+        {error && <div className="text-red-500">{error}</div>}
       </div>
-      <div className="mt-3 flex items-center gap-2">
-        <input className="input" placeholder="Message the Atlas Agent..." value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=> e.key==='Enter' && send()} />
-        <button className="btn-primary" onClick={send}><Send className="h-4 w-4" /></button>
+      <div className="p-4 flex gap-2">
+        <input
+          className="flex-1 border rounded-lg px-3 py-2"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          placeholder="Type a message..."
+          onKeyDown={e => { if (e.key === 'Enter') sendMessage() }}
+          disabled={loading}
+        />
+        <button className="btn-primary" onClick={sendMessage} disabled={loading}>Send</button>
       </div>
     </div>
   )
