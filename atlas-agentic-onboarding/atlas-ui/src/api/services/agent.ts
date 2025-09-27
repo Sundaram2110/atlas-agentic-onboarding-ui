@@ -1,6 +1,6 @@
 import api from '../axios';
 
-export const chatAgent = async (message: string) => {
-  const res = await api.post('/agent/chat', { message });
+export const chatAgent = async (prompt: string, context: any = {}) => {
+  const res = await api.post('/agent/chat', { prompt, context });
   return res.data;
 };
