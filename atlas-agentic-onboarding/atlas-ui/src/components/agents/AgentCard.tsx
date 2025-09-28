@@ -21,10 +21,10 @@ export default function AgentCard({ name, model = 'N/A', status = 'idle', descri
         <span className={`chip ${statusMap[status]}`}>{status}</span>
       </div>
       <p className="text-sm text-slate-300">{description}</p>
-      <div className="flex gap-2 mt-auto">
+      <div className="flex gap-1 mt-auto">
         <button className="btn-primary" onClick={onTest}><Play className="h-4 w-4" /> Test</button>
         <button className="btn-ghost" onClick={onConfigure}><Settings2 className="h-4 w-4" /> Configure</button>
-        <button className="btn-ghost text-red-400 hover:text-red-300" onClick={onDelete}><Trash2 className="h-4 w-4" /> Delete</button>
+        <button className="btn-ghost text-red-400 hover:text-red-300" onClick={onDelete}><Trash2 className="h-4 w-4" /></button>
       </div>
     </div>
   )
