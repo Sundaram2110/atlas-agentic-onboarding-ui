@@ -1,6 +1,6 @@
 import { Bot, Settings2, Play } from 'lucide-react'
 
-export default function AgentCard({ name, model, status, description }: { name: string, model: string, status: 'idle'|'running'|'stopped', description: string }) {
+export default function AgentCard({ name, model = 'N/A', status = 'idle', description }: { name: string, model?: string, status?: 'idle'|'running'|'stopped', description: string }) {
   const statusMap = {
     idle: 'bg-yellow-500/20 text-yellow-300',
     running: 'bg-emerald-500/20 text-emerald-300',

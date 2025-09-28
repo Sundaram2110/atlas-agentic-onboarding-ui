@@ -7,12 +7,12 @@ export default function Agents() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/agents`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/agent`)
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch agents')
         return res.json()
       })
-      .then(setAgents)
+      .then(data => setAgents(data.agents))
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [])

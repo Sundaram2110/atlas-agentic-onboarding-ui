@@ -36,7 +36,7 @@ export default function ChatPanel() {
       <div className="flex-1 overflow-y-auto space-y-2 p-4">
         {messages.map((m, i) => (
           <div key={i} className={m.role === 'user' ? 'text-right' : 'text-left'}>
-            <span className="inline-block px-3 py-2 rounded-lg bg-gray-200 dark:bg-gray-700">
+            <span className="inline-block px-3 py-2 rounded-lg bg-gray-900 dark:bg-gray-900">
               {m.content}
             </span>
           </div>
@@ -45,7 +45,7 @@ export default function ChatPanel() {
       </div>
       <div className="p-4 flex gap-2">
         <input
-          className="flex-1 border rounded-lg px-3 py-2"
+          className="flex-1 border rounded-lg px-3 py-2 text-gray-900 dark:text-gray-900"
           value={input}
           onChange={e => setInput(e.target.value)}
           placeholder="Type a message..."
