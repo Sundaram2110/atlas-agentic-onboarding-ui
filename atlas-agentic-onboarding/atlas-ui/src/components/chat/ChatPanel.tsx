@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { chatAgent } from '@/api/services/agent'
 
-export default function ChatPanel() {
+export default function ChatPanel({ agentId }: { agentId?: string }) {
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -16,14 +17,20 @@ export default function ChatPanel() {
     setError(null)
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/agent/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input }),
-      })
-      if (!res.ok) throw new Error('Failed to get reply')
-      const data = await res.json()
-      setMessages(prev => [...prev, { role: 'assistant', content: data.response }])
+      let response;
+      if (agentId) {
+        response = await chatAgent(input, { agentId });
+        setMessages(prev => [...prev, { role: 'assistant', content: response.response }])
+      } else {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/agent/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: input }),
+        })
+        if (!res.ok) throw new Error('Failed to get reply')
+        const data = await res.json()
+        setMessages(prev => [...prev, { role: 'assistant', content: data.response }])
+      }
     } catch (e: any) {
       setError(e.message || 'Unknown error')
     } finally {
