@@ -1,6 +1,6 @@
-import { Bot, Settings2, Play } from 'lucide-react'
+import { Bot, Settings2, Play, Trash2 } from 'lucide-react'
 
-export default function AgentCard({ name, model = 'N/A', status = 'idle', description, onTest, onConfigure }: { name: string, model?: string, status?: 'idle'|'running'|'stopped', description: string, onTest?: () => void, onConfigure?: () => void }) {
+export default function AgentCard({ name, model = 'N/A', status = 'idle', description, onTest, onConfigure, onDelete }: { name: string, model?: string, status?: 'idle'|'running'|'stopped', description: string, onTest?: () => void, onConfigure?: () => void, onDelete?: () => void }) {
   const statusMap = {
     idle: 'bg-yellow-500/20 text-yellow-300',
     running: 'bg-emerald-500/20 text-emerald-300',
@@ -24,6 +24,7 @@ export default function AgentCard({ name, model = 'N/A', status = 'idle', descri
       <div className="flex gap-2 mt-auto">
         <button className="btn-primary" onClick={onTest}><Play className="h-4 w-4" /> Test</button>
         <button className="btn-ghost" onClick={onConfigure}><Settings2 className="h-4 w-4" /> Configure</button>
+        <button className="btn-ghost text-red-400 hover:text-red-300" onClick={onDelete}><Trash2 className="h-4 w-4" /> Delete</button>
       </div>
     </div>
   )

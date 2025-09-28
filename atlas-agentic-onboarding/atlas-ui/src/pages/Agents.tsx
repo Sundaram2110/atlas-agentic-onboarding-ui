@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import AgentCard from '@/components/agents/AgentCard'
 import ChatPanel from '@/components/chat/ChatPanel'
-import { getAgents, createAgent, updateAgent } from '@/api/services/agent'
+import { getAgents, createAgent, updateAgent, startAgent, stopAgent, deleteAgent } from '@/api/services/agent'
 
 export default function Agents() {
   const [agents, setAgents] = useState<any[]>([])
@@ -63,7 +63,7 @@ export default function Agents() {
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-400">{error}</p>}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {agents.map(a => <AgentCard key={a.id} {...a} onTest={() => { setSelectedAgent(a); setShowChatModal(true); }} onConfigure={() => { setEditingAgent(a); setNewAgent({ name: a.name, model: a.model, description: a.description }); setShowEditModal(true); }} />)}
+        {agents.map(a => <AgentCard key={a.id} {...a} onTest={async () => { if (a.status === 'idle') { await startAgent(a.id); setAgents(agents.map(ag => ag.id === a.id ? {...ag, status: 'running'} : ag)); } setSelectedAgent({...a, status: a.status === 'idle' ? 'running' : a.status}); setShowChatModal(true); }} onConfigure={() => { setEditingAgent(a); setNewAgent({ name: a.name, model: a.model, description: a.description }); setShowEditModal(true); }} onDelete={async () => { await deleteAgent(a.id); setAgents(agents.filter(ag => ag.id !== a.id)); }} />)}
       </div>
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -150,7 +150,10 @@ export default function Agents() {
           <div className="bg-slate-800 p-6 rounded-lg w-full max-w-2xl h-3/4 flex flex-col">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Chat with {selectedAgent.name}</h2>
-              <button onClick={() => setShowChatModal(false)} className="btn-ghost">Close</button>
+              <div className="flex gap-2">
+                <button onClick={async () => { await stopAgent(selectedAgent.id); setAgents(agents.map(ag => ag.id === selectedAgent.id ? {...ag, status: 'idle'} : ag)); setShowChatModal(false); }} className="btn-ghost">Stop</button>
+                <button onClick={() => setShowChatModal(false)} className="btn-ghost">Close</button>
+              </div>
             </div>
             <div className="flex-1 overflow-hidden">
               <ChatPanel agentId={selectedAgent.id} />

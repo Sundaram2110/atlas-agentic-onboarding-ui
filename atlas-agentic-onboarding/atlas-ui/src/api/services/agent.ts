@@ -1,7 +1,7 @@
 import api from '../axios';
 
 export const chatAgent = async (prompt: string, context: any = {}) => {
-  const res = await api.post('/agent/chat', { prompt, context });
+  const res = await api.post('/api/agent/chat', { prompt, context });
   return res.data;
 };
 
@@ -17,5 +17,20 @@ export const createAgent = async (agentData: { name: string; model: string; desc
 
 export const updateAgent = async (id: string, agentData: { name: string; model: string; description: string }) => {
   const res = await api.put(`/api/agent/${id}`, agentData);
+  return res.data;
+};
+
+export const startAgent = async (id: string) => {
+  const res = await api.post(`/api/agent/${id}/start`);
+  return res.data;
+};
+
+export const stopAgent = async (id: string) => {
+  const res = await api.post(`/api/agent/${id}/stop`);
+  return res.data;
+};
+
+export const deleteAgent = async (id: string) => {
+  const res = await api.delete(`/api/agent/${id}`);
   return res.data;
 };
