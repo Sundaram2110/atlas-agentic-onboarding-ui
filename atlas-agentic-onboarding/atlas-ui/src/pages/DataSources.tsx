@@ -11,7 +11,7 @@ export default function DataSources() {
         if (!res.ok) throw new Error('Failed to fetch data sources')
         return res.json()
       })
-      .then(setSources)
+      .then(data => setSources(data.dataSources))
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [])
@@ -23,7 +23,7 @@ export default function DataSources() {
       {error && <p className="text-red-400">{error}</p>}
       <ul className="space-y-2">
         {sources.map(s => (
-          <li key={s.id} className="p-4 border rounded-lg">{s.name}</li>
+          <li key={s} className="p-4 border rounded-lg">{s}</li>
         ))}
       </ul>
     </div>
