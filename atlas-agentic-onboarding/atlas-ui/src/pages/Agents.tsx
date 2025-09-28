@@ -63,7 +63,7 @@ export default function Agents() {
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-400">{error}</p>}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {agents.map(a => <AgentCard key={a.id} {...a} onTest={async () => { if (a.status === 'idle') { await startAgent(a.id); setAgents(agents.map(ag => ag.id === a.id ? {...ag, status: 'running'} : ag)); } setSelectedAgent({...a, status: a.status === 'idle' ? 'running' : a.status}); setShowChatModal(true); }} onConfigure={() => { setEditingAgent(a); setNewAgent({ name: a.name, model: a.model, description: a.description }); setShowEditModal(true); }} onDelete={async () => { await deleteAgent(a.id); setAgents(agents.filter(ag => ag.id !== a.id)); }} />)}
+        {agents.map(a => <AgentCard key={a.id} {...a} onTest={async () => { try { if (a.status === 'idle') { await startAgent(a.id); setAgents(agents.map(ag => ag.id === a.id ? {...ag, status: 'running'} : ag)); setSelectedAgent({...a, status: 'running'}); } else { setSelectedAgent({...a, status: a.status}); } setShowChatModal(true); } catch (e) { setError('Failed to start agent'); } }} onConfigure={() => { setEditingAgent(a); setNewAgent({ name: a.name, model: a.model, description: a.description }); setShowEditModal(true); }} onDelete={async () => { try { await deleteAgent(a.id); setAgents(agents.filter(ag => ag.id !== a.id)); } catch (e) { setError('Failed to delete agent'); } }} />)}
       </div>
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -151,12 +151,12 @@ export default function Agents() {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Chat with {selectedAgent.name}</h2>
               <div className="flex gap-2">
-                <button onClick={async () => { await stopAgent(selectedAgent.id); setAgents(agents.map(ag => ag.id === selectedAgent.id ? {...ag, status: 'idle'} : ag)); setShowChatModal(false); }} className="btn-ghost">Stop</button>
+                <button onClick={async () => { try { if (selectedAgent.status === 'running') { await stopAgent(selectedAgent.id); setAgents(agents.map(ag => ag.id === selectedAgent.id ? {...ag, status: 'stopped'} : ag)); setSelectedAgent({...selectedAgent, status: 'stopped'}); setShowChatModal(false); } else { await startAgent(selectedAgent.id); setAgents(agents.map(ag => ag.id === selectedAgent.id ? {...ag, status: 'running'} : ag)); setSelectedAgent({...selectedAgent, status: 'running'}); } } catch (e) { setError('Failed to update agent'); } }} className="btn-ghost">{selectedAgent.status === 'running' ? 'Stop' : 'Resume'}</button>
                 <button onClick={() => setShowChatModal(false)} className="btn-ghost">Close</button>
               </div>
             </div>
             <div className="flex-1 overflow-hidden">
-              <ChatPanel agentId={selectedAgent.id} />
+              <ChatPanel agentId={selectedAgent.id} disabled={selectedAgent.status !== 'running'} />
             </div>
           </div>
         </div>

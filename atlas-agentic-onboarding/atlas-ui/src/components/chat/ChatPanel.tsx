@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { chatAgent } from '@/api/services/agent'
 
-export default function ChatPanel({ agentId }: { agentId?: string }) {
+export default function ChatPanel({ agentId, disabled = false }: { agentId?: string, disabled?: boolean }) {
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -55,11 +55,11 @@ export default function ChatPanel({ agentId }: { agentId?: string }) {
           className="flex-1 border rounded-lg px-3 py-2 text-gray-900 dark:text-gray-900"
           value={input}
           onChange={e => setInput(e.target.value)}
-          placeholder="Type a message..."
-          onKeyDown={e => { if (e.key === 'Enter') sendMessage() }}
-          disabled={loading}
+          placeholder={disabled ? "Agent is stopped. Resume to chat." : "Type a message..."}
+          onKeyDown={e => { if (e.key === 'Enter' && !disabled) sendMessage() }}
+          disabled={loading || disabled}
         />
-        <button className="btn-primary" onClick={sendMessage} disabled={loading}>Send</button>
+        <button className="btn-primary" onClick={sendMessage} disabled={loading || disabled}>Send</button>
       </div>
     </div>
   )
